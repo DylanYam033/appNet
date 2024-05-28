@@ -1,0 +1,1 @@
+C:\Users\Alba Admin\source\repos\crudApp\crudapp.client\obj\Debug\crudapp.client.esproj.CoreCompileInputs.cache
