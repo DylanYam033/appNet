@@ -1,0 +1,62 @@
+# Node modules
+node_modules/
+
+# Visual Studio Code
+.vscode/
+
+# npm-debug.log
+npm-debug.log*
+
+# React build output
+/build/
+
+# Compiled TypeScript files
+*.js
+*.map
+
+# Dependencies folder
+/packages/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Mono-specific files
+mono_crash.*
+
+# NuGet package directories
+**/packages/*
+!**/packages/*/icons
+
+# User-specific Visual Studio files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Project files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userosscache
+*.pidb
+*.ide
+
+# Miscellaneous
+*.log
+*.vspscc
+*.vssscc
+.build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

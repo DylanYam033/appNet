@@ -1,49 +1,98 @@
 import { useEffect, useState } from 'react';
-import './App.css';
+import { Card, CardBody, CardHeader, Col, Container, Row, Button } from 'reactstrap';
+import TablaContacto from './components/TablaContacto';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import ContactModal from './components/ModalCreate';
+import Swal from 'sweetalert2';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-    const [forecasts, setForecasts] = useState();
+
+    const [contactos, setContactos] = useState([]);
+
+    const mostrarContactos = async () => {
+        const response = await fetch('api/Contacto/contactos/list');
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setContactos(data);
+        } else {
+            console.error("Error")
+        }
+    }
 
     useEffect(() => {
-        populateWeatherData();
-    }, []);
+        mostrarContactos()
+    }, [])
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+    const [showModal, setShowModal] = useState(false);
+
+    const toggleModal = () => {
+        setShowModal(!showModal);
+    };
+
+    const handleSaveContact = async (contact) => {
+        try {
+          const response = await fetch('/api/Contacto/contactos/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(contact),
+          });
+    
+          if (response.ok) {
+            // Mostrar alerta de éxito
+            Swal.fire({
+              icon: 'success',
+              title: '¡Éxito!',
+              text: 'Contacto guardado exitosamente',
+            });
+            toggleModal(); // Cerrar modal después de guardar exitosamente
+            mostrarContactos();
+          } else {
+            // Mostrar alerta de error
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un problema al guardar el contacto. Por favor, inténtalo de nuevo más tarde.',
+            });
+            
+          }
+        } catch (error) {
+          console.error('Error de red:', error);
+          // Mostrar alerta de error de red
+          Swal.fire({
+            icon: 'error',
+            title: 'Error de red',
+            text: 'Hubo un problema al conectarse al servidor. Por favor, revisa tu conexión a internet e inténtalo de nuevo.',
+          });
+         
+        }
+    };
 
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
+        <Container>
+            <Row className='mt-5'>
+                <Col sm="12">
+                    <Card>
+                        <CardHeader>
+                            <h5>Lista de contactos</h5>
+                        </CardHeader>
+                        <CardBody>
+                            <Button color="success" onClick={toggleModal}>Nuevo contacto</Button>
+                            <hr></hr>
+                            <TablaContacto contactos={contactos} />
+                        </CardBody>
+                    </Card>
+                </Col>
+            </Row>
+            <ContactModal isOpen={showModal} toggle={toggleModal} onSave={handleSaveContact} />
+        </Container>
     );
-    
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        const data = await response.json();
-        setForecasts(data);
-    }
+
 }
 
 export default App;

@@ -23,7 +23,7 @@ namespace crudApp.Server.Controllers
         [Route("contactos/list")]
         public async Task<IActionResult> GetContacts()
         {
-            // Obtiene la lista de contactos ordenados por IdContacto en orden descendente de manera asincrónica.
+            // Operación asíncrona de listar que no bloquea el thread mientras espera que la lista de contactos sea obtenida
             List<Contacto> list_contacts = await _dbcontext.Contactos.OrderByDescending(contacto => contacto.IdContacto).ToListAsync();
 
             // Retorna la lista de contactos con un código de estado 200 (OK).
@@ -59,7 +59,7 @@ namespace crudApp.Server.Controllers
         }
 
         // Acción HTTP PUT para eliminar un contacto por su Id.
-        [HttpPut]
+        [HttpDelete]
         [Route("contactos/delete/{id:int}")]
         public async Task<IActionResult> DeleteContact(int id)
         {
