@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Input } from 'reactstrap';
+import { ModalCreate } from '../ModalCreate';
+import Swal from 'sweetalert2';
 
-function TablaContacto({ contactos }) {
+function TablaContacto({ contactos, mostrarContactos}) {
     const [currentPage, setCurrentPage] = useState(1);
-    const [contactsPerPage, setContactsPerPage] = useState(5); // Número predeterminado de contactos por página
+    const [contactsPerPage, setContactsPerPage] = useState(5);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedContact, setSelectedContact] = useState(null);
 
     // Índices de los contactos que se mostrarán en la página actual
     const indexOfLastContact = currentPage * contactsPerPage;
@@ -15,8 +19,91 @@ function TablaContacto({ contactos }) {
 
     // Cambiar cantidad de contactos por página
     const handleContactsPerPageChange = (e) => {
-        setCurrentPage(1); // Cuando cambia el número de contactos por página, volver a la primera página
+        setCurrentPage(1);
         setContactsPerPage(Number(e.target.value));
+    };
+
+    const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+    const handleEdit = (contacto) => {
+        setSelectedContact(contacto);
+        toggleModal();
+    };
+
+    const handleSave = async (updatedContact) => {
+        try {
+            const response = await fetch('/api/Contacto/contactos/update', {
+                method: 'PUT', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedContact),
+            });
+    
+            if (response.ok) {
+                Swal.fire({
+                    title: 'Éxito',
+                    text: 'Contacto Actualizado',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+                mostrarContactos()
+            }
+            toggleModal();
+        } catch (error) {
+            console.error('Error al actualizar el contacto:', error);
+    
+            // Mostrar alerta de error
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un problema al actualizar el contacto.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    };
+
+    const handleDelete = async (idContacto) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esto",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/api/Contacto/contactos/delete/${idContacto}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al eliminar el contacto');
+                }
+
+                Swal.fire({
+                    title: 'Eliminado',
+                    text: 'El contacto ha sido eliminado',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+
+                mostrarContactos();
+
+            } catch (error) {
+                console.error('Error al eliminar el contacto:', error);
+
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message || 'Hubo un problema al eliminar el contacto.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
     };
 
     return (
@@ -34,7 +121,7 @@ function TablaContacto({ contactos }) {
                 <tbody>
                     {currentContacts.length === 0 ? (
                         <tr>
-                            <td colSpan="4" className="text-center">No hay registros</td>
+                            <td colSpan="5" className="text-center">No hay registros</td>
                         </tr>
                     ) : (
                         currentContacts.map((contacto) => (
@@ -44,8 +131,8 @@ function TablaContacto({ contactos }) {
                                 <td>{contacto.correo}</td>
                                 <td>{contacto.telefono}</td>
                                 <td>
-                                    <Button color='primary' size='sm' className='me-2'>Editar</Button>
-                                    <Button color='danger' size='sm' className='me-2'>Eliminar</Button>
+                                    <Button color='primary' size='sm' className='me-2' onClick={() => handleEdit(contacto)}>Editar</Button>
+                                    <Button color='danger' size='sm' className='me-2' onClick={() => handleDelete(contacto.idContacto)}>Eliminar</Button>
                                 </td>
                             </tr>
                         ))
@@ -89,6 +176,14 @@ function TablaContacto({ contactos }) {
                 </div>
 
             </div>
+            {selectedContact && (
+                <ModalCreate
+                    isOpen={isModalOpen}
+                    toggle={toggleModal}
+                    contact={selectedContact}
+                    onSave={handleSave}
+                />
+            )}
         </div>
     );
 }

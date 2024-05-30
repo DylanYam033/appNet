@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader, Col, Container, Row, Button } from 'reactstrap';
 import TablaContacto from './components/TablaContacto';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import ContactModal from './components/ModalCreate';
+import { ModalCreate } from './components/ModalCreate';
 import Swal from 'sweetalert2';
-import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
@@ -84,12 +83,12 @@ function App() {
                         <CardBody>
                             <Button color="success" onClick={toggleModal}>Nuevo contacto</Button>
                             <hr></hr>
-                            <TablaContacto contactos={contactos} />
+                            <TablaContacto contactos={contactos} mostrarContactos={mostrarContactos} />
                         </CardBody>
                     </Card>
                 </Col>
             </Row>
-            <ContactModal isOpen={showModal} toggle={toggleModal} onSave={handleSaveContact} />
+            <ModalCreate isOpen={showModal} toggle={toggleModal} onSave={handleSaveContact} />
         </Container>
     );
 

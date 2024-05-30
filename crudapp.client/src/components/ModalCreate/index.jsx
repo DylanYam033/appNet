@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
 
-function ContactModal({ isOpen, toggle, onSave }) {
+function ModalCreate({ isOpen, toggle, contact, onSave }) {
 
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
 
+  useEffect(() => {
+    if (contact) {
+      setNombre(contact.nombre);
+      setCorreo(contact.correo);
+      setTelefono(contact.telefono);
+    }
+  }, [contact]);
+
   const handleSave = () => {
-    onSave({ nombre, correo, telefono });
+    onSave({ ...contact, nombre, correo, telefono });
     setNombre('');
     setCorreo('');
     setTelefono('');
-    toggle();
   };
 
   return (
     <Modal isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Nuevo contacto</ModalHeader>
+      <ModalHeader toggle={toggle}>{contact ? 'Editar contacto' : 'Nuevo contacto'}</ModalHeader>
       <ModalBody>
         <Form>
           <FormGroup>
@@ -60,4 +67,4 @@ function ContactModal({ isOpen, toggle, onSave }) {
   );
 }
 
-export default ContactModal;
+export {ModalCreate};
